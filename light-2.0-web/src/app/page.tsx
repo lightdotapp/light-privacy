@@ -1,0 +1,185 @@
+'use client';
+
+import { motion } from 'framer-motion';
+import Image from 'next/image';
+import WaitlistForm from '@/components/WaitlistForm';
+import { Sparkles, Zap, Shield } from 'lucide-react';
+
+export default function Home() {
+  return (
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-background via-background to-muted/20">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.1 }}
+          transition={{ duration: 1 }}
+          className="absolute top-20 -left-20 w-96 h-96 bg-primary rounded-full blur-3xl"
+        />
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.1 }}
+          transition={{ duration: 1, delay: 0.2 }}
+          className="absolute bottom-20 -right-20 w-96 h-96 bg-primary rounded-full blur-3xl"
+        />
+        
+        {/* Floating particles */}
+        {[...Array(20)].map((_, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 0 }}
+            animate={{
+              opacity: [0, 0.3, 0],
+              y: [-100, -600],
+              x: Math.random() * 100 - 50,
+            }}
+            transition={{
+              duration: Math.random() * 3 + 2,
+              repeat: Infinity,
+              delay: Math.random() * 5,
+            }}
+            className="absolute w-1 h-1 bg-primary/50 rounded-full pointer-events-none"
+            style={{
+              left: `${Math.random() * 100}%`,
+              bottom: 0,
+              zIndex: 1,
+            }}
+          />
+        ))}
+      </div>
+
+      <main className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-20 overflow-visible">
+        <div className="w-full max-w-4xl mx-auto text-center space-y-8 min-h-0">
+          {/* Logo */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="mb-8"
+          >
+            <Image
+              src="/logo.svg"
+              alt="Light Logo"
+              width={120}
+              height={120}
+              priority
+              className="mx-auto"
+            />
+          </motion.div>
+
+          {/* Hero Title */}
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="text-5xl md:text-7xl font-bold tracking-tight leading-tight py-4"
+          >
+            <motion.span
+              className="inline-block bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent"
+              animate={{
+                backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+              }}
+              transition={{
+                duration: 5,
+                repeat: Infinity,
+                ease: 'linear',
+              }}
+              style={{
+                backgroundSize: '200% 200%',
+                lineHeight: '1.1',
+                display: 'inline-block',
+                paddingBottom: '0.2em',
+              }}
+            >
+              Light 2.0
+            </motion.span>
+          </motion.h1>
+
+          {/* Subtitle */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed"
+          >
+            Building The Future Of Privacy On Solana.
+            <br />
+            Private payments. Private trading. Private [redacted].
+          </motion.p>
+
+          {/* Features */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="flex flex-wrap items-center justify-center gap-6 py-8"
+          >
+            {[
+              { icon: Zap, text: 'Lightning Fast' },
+              { icon: Shield, text: 'Secure & Private' },
+              { icon: Sparkles, text: 'Beautiful UI' },
+            ].map((feature, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.4, delay: 0.4 + index * 0.1 }}
+                whileHover={{ scale: 1.05 }}
+                className="flex items-center gap-2 px-4 py-2 bg-card rounded-lg border border-border shadow-sm"
+              >
+                <feature.icon className="w-5 h-5 text-primary" />
+                <span className="text-sm font-medium">{feature.text}</span>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {/* Waitlist Form */}
+          <div className="flex justify-center pt-4">
+            <WaitlistForm />
+          </div>
+
+          {/* Social Proof */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="pt-12 text-sm text-muted-foreground"
+          >
+            <div className="flex items-center justify-center gap-2">
+              <motion.div
+                className="flex -space-x-2"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.7 }}
+              >
+                {[...Array(4)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/50 to-primary border-2 border-background"
+                  />
+                ))}
+              </motion.div>
+              <motion.span
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.8 }}
+              >
+                Join others on the waitlist
+              </motion.span>
+            </div>
+          </motion.div>
+        </div>
+      </main>
+
+      {/* Footer */}
+      <motion.footer
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.5 }}
+        className="relative z-10 pb-8 text-center text-sm text-muted-foreground"
+      >
+        <p>© 2025 Light. All rights reserved.</p>
+      </motion.footer>
+    </div>
+  );
+}
