@@ -3,7 +3,6 @@
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import WaitlistForm from '@/components/WaitlistForm';
-import { Sparkles, Zap, Shield } from 'lucide-react';
 
 export default function Home() {
   return (
@@ -107,66 +106,50 @@ export default function Home() {
             Private payments. Private trading. Private [redacted].
           </motion.p>
 
-          {/* Features */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="flex flex-wrap items-center justify-center gap-6 py-8"
-          >
-            {[
-              { icon: Zap, text: 'Lightning Fast' },
-              { icon: Shield, text: 'Secure & Private' },
-              { icon: Sparkles, text: 'Beautiful UI' },
-            ].map((feature, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.4, delay: 0.4 + index * 0.1 }}
-                whileHover={{ scale: 1.05 }}
-                className="flex items-center gap-2 px-4 py-2 bg-card rounded-lg border border-border shadow-sm"
-              >
-                <feature.icon className="w-5 h-5 text-primary" />
-                <span className="text-sm font-medium">{feature.text}</span>
-              </motion.div>
-            ))}
-          </motion.div>
-
           {/* Waitlist Form */}
           <div className="flex justify-center pt-4">
             <WaitlistForm />
           </div>
 
-          {/* Social Proof */}
+          {/* Social Links */}
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.6 }}
-            className="pt-12 text-sm text-muted-foreground"
+            className="flex items-center justify-center gap-4 pt-8"
           >
-            <div className="flex items-center justify-center gap-2">
-              <motion.div
-                className="flex -space-x-2"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: 0.7 }}
-              >
-                {[...Array(4)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="w-8 h-8 rounded-full bg-gradient-to-br from-primary/50 to-primary border-2 border-background"
-                  />
-                ))}
-              </motion.div>
-              <motion.span
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5, delay: 0.8 }}
-              >
-                Join others on the waitlist
-              </motion.span>
-            </div>
+            <motion.a
+              href="https://x.com/lightdotapp"
+              target="_blank"
+              rel="noopener noreferrer"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              className="p-3 rounded-full bg-card border border-border hover:border-primary transition-colors"
+            >
+              <Image
+                src="/twitter.svg"
+                alt="Twitter"
+                width={24}
+                height={24}
+                className="w-6 h-6 [filter:brightness(0)_saturate(100%)_invert(45%)_sepia(93%)_saturate(6494%)_hue-rotate(246deg)_brightness(102%)_contrast(101%)]"
+              />
+            </motion.a>
+            <motion.a
+              href="https://discord.gg/lightdotapp"
+              target="_blank"
+              rel="noopener noreferrer"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              className="p-3 rounded-full bg-card border border-border hover:border-primary transition-colors"
+            >
+              <Image
+                src="/discord.svg"
+                alt="Discord"
+                width={24}
+                height={24}
+                className="w-6 h-6 [filter:brightness(0)_saturate(100%)_invert(45%)_sepia(93%)_saturate(6494%)_hue-rotate(246deg)_brightness(102%)_contrast(101%)]"
+              />
+            </motion.a>
           </motion.div>
         </div>
       </main>
