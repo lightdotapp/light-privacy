@@ -8,7 +8,7 @@ import { Check, Loader2, Mail } from 'lucide-react';
 
 export default function WaitlistForm() {
   const [email, setEmail] = useState('');
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error' | 'already-exists'>('idle');
   const [message, setMessage] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -31,9 +31,14 @@ export default function WaitlistForm() {
         setStatus('success');
         setMessage(data.message);
         setEmail('');
+      } else if (response.status === 409 && data.alreadyExists) {
+        // User is already on the waitlist - show as info/success
+        setStatus('already-exists');
+        setMessage(data.message);
+        setEmail('');
       } else {
         setStatus('error');
-        setMessage(data.error);
+        setMessage(data.error || data.message);
       }
     } catch {
       setStatus('error');
@@ -68,6 +73,25 @@ export default function WaitlistForm() {
                 </motion.div>
                 <span className="text-green-600 dark:text-green-400 font-medium">
                   You&apos;re on the list!
+                </span>
+              </motion.div>
+            ) : status === 'already-exists' ? (
+              <motion.div
+                key="already-exists"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                className="h-14 flex items-center justify-center gap-2 bg-blue-50 dark:bg-blue-950 border-2 border-blue-500 rounded-xl px-6"
+              >
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
+                >
+                  <Check className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                </motion.div>
+                <span className="text-blue-600 dark:text-blue-400 font-medium">
+                  {message}
                 </span>
               </motion.div>
             ) : (

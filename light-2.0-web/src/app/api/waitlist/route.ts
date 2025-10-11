@@ -26,12 +26,12 @@ export async function POST(request: NextRequest) {
       .from('waitlist')
       .select('email')
       .eq('email', email)
-      .single();
+      .maybeSingle();
 
     if (existingEntry) {
       return NextResponse.json(
-        { error: 'This email is already on the waitlist!' },
-        { status: 400 }
+        { message: 'You\'re already on the waitlist!', alreadyExists: true },
+        { status: 409 }
       );
     }
 
@@ -42,6 +42,15 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error('Supabase error:', error);
+      
+      // Check if it's a unique constraint violation (duplicate email)
+      if (error.code === '23505' || error.message?.includes('duplicate') || error.message?.includes('unique')) {
+        return NextResponse.json(
+          { message: 'You\'re already on the waitlist!', alreadyExists: true },
+          { status: 409 }
+        );
+      }
+      
       return NextResponse.json(
         { error: 'Failed to join waitlist. Please try again.' },
         { status: 500 }
