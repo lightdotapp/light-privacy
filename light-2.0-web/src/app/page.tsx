@@ -135,7 +135,7 @@ export default function Home() {
               />
             </motion.a>
             <motion.a
-              href="https://discord.gg/lightdotapp"
+              href="https://discord.gg/Dn7YQjKY9h"
               target="_blank"
               rel="noopener noreferrer"
               whileHover={{ scale: 1.1 }}
