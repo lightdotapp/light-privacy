@@ -6,18 +6,18 @@ import WaitlistForm from '@/components/WaitlistForm';
 
 export default function Home() {
   return (
-    <div className="min-h-screen relative overflow-hidden bg-background">
+    <div className="min-h-screen relative overflow-hidden bg-white">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div
           initial={{ opacity: 0 }}
-          animate={{ opacity: 0.05 }}
+          animate={{ opacity: 0.1 }}
           transition={{ duration: 1 }}
           className="absolute top-20 -left-20 w-96 h-96 bg-primary rounded-full blur-3xl"
         />
         <motion.div
           initial={{ opacity: 0 }}
-          animate={{ opacity: 0.05 }}
+          animate={{ opacity: 0.1 }}
           transition={{ duration: 1, delay: 0.2 }}
           className="absolute bottom-20 -right-20 w-96 h-96 bg-primary rounded-full blur-3xl"
         />
@@ -28,7 +28,7 @@ export default function Home() {
             key={i}
             initial={{ opacity: 0, y: 0 }}
             animate={{
-              opacity: [0, 0.1, 0],
+              opacity: [0, 0.3, 0],
               y: [-100, -600],
               x: Math.random() * 100 - 50,
             }}
