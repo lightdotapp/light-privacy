@@ -13,13 +13,15 @@ export default function Home() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.1 }}
           transition={{ duration: 1 }}
-          className="absolute top-20 -left-20 w-96 h-96 bg-primary rounded-full blur-3xl"
+          className="absolute top-20 -left-20 w-64 h-64 md:w-80 md:h-80 rounded-full blur-3xl"
+          style={{ backgroundColor: '#8b5cf6' }}
         />
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.1 }}
           transition={{ duration: 1, delay: 0.2 }}
-          className="absolute bottom-20 -right-20 w-96 h-96 bg-primary rounded-full blur-3xl"
+          className="absolute bottom-20 -right-20 w-64 h-64 md:w-80 md:h-80 rounded-full blur-3xl"
+          style={{ backgroundColor: '#8b5cf6' }}
         />
         
         {/* Floating particles */}
@@ -37,8 +39,9 @@ export default function Home() {
               repeat: Infinity,
               delay: Math.random() * 5,
             }}
-            className="absolute w-1 h-1 bg-primary/50 rounded-full pointer-events-none"
+            className="absolute w-1 h-1 md:w-2 md:h-2 rounded-full pointer-events-none"
             style={{
+              backgroundColor: '#8b5cf6',
               left: `${Math.random() * 100}%`,
               bottom: 0,
               zIndex: 1,
@@ -47,7 +50,7 @@ export default function Home() {
         ))}
       </div>
 
-      <main className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-20 overflow-visible" style={{ backgroundColor: '#ffffff' }}>
+      <main className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-20 overflow-visible">
         <div className="w-full max-w-4xl mx-auto text-center space-y-8 min-h-0">
           {/* Logo */}
           <motion.div
