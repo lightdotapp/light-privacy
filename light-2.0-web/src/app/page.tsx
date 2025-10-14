@@ -13,14 +13,14 @@ export default function Home() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.1 }}
           transition={{ duration: 1 }}
-          className="absolute top-20 -left-20 w-64 h-64 md:w-80 md:h-80 rounded-full blur-3xl"
+          className="hidden md:block absolute top-20 -left-20 w-64 h-64 md:w-80 md:h-80 rounded-full blur-3xl"
           style={{ backgroundColor: '#8b5cf6' }}
         />
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.1 }}
           transition={{ duration: 1, delay: 0.2 }}
-          className="absolute bottom-20 -right-20 w-64 h-64 md:w-80 md:h-80 rounded-full blur-3xl"
+          className="hidden md:block absolute bottom-20 -right-20 w-64 h-64 md:w-80 md:h-80 rounded-full blur-3xl"
           style={{ backgroundColor: '#8b5cf6' }}
         />
         
