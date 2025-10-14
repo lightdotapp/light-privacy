@@ -141,41 +141,56 @@ function SendSolView() {
 
       {/* Main */}
       <main className="px-4 md:px-8 py-8 flex justify-center">
-        <Card className="w-full max-w-xl p-6 border border-border">
-          <h2 className="text-2xl font-semibold mb-2">Send SOL</h2>
-          <p className="text-sm text-muted-foreground mb-4">
-            Light 2.0 works on Solana Devnet.{' '}
-            <a className="underline" href="https://faucet.solana.com/" target="_blank" rel="noopener noreferrer">Faucet here</a>.
+        <Card className="w-full max-w-2xl p-6 border border-border shadow-xl">
+          <h2 className="text-sm font-medium text-muted-foreground mb-2">Sending privately</h2>
+          <p className="text-sm text-muted-foreground mb-6">
+            Light 2.0 works on Solana Devnet{' '}<a className="underline" href="https://faucet.solana.com/" target="_blank" rel="noopener noreferrer">Faucet here</a>.
           </p>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm mb-2">To</label>
+
+          <div className="space-y-6">
+            {/* Token + amount panel */}
+            <div className="rounded-xl border border-border bg-card/50 p-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#9945FF] via-[#14F195] to-[#00D18C] p-[1px]">
+                  <div className="flex items-center gap-2 bg-background rounded-full px-3 py-1.5">
+                    <span className="inline-flex items-center justify-center size-6 rounded-full bg-black">
+                      <Image src="/sol.svg" alt="SOL" width={14} height={14} />
+                    </span>
+                    <span className="font-semibold">SOL</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  {balanceSol !== null && (
+                    <span className="text-xs text-muted-foreground">Balance: {balanceSol.toFixed(6)} SOL</span>
+                  )}
+                  <Button type="button" size="sm" variant="secondary" onClick={setUseMax} disabled={balanceSol === null}>
+                    MAX
+                  </Button>
+                </div>
+              </div>
+              <div className="pt-2">
+                <input
+                  placeholder="0"
+                  inputMode="decimal"
+                  value={amountSol}
+                  onChange={(e) => setAmountSol(e.target.value)}
+                  className="w-full bg-transparent border-0 outline-none text-right text-6xl font-semibold tracking-tight placeholder:text-muted-foreground focus:ring-0"
+                />
+              </div>
+            </div>
+
+            {/* Recipient row */}
+            <div className="rounded-xl border border-border bg-card/50 p-4">
+              <div className="text-sm text-muted-foreground mb-2">To</div>
               <Input
-                placeholder="Recipient address (e.g. heymike.sol or 111...111)"
+                placeholder="Enter recipient address (e.g. heymike.sol or 111...111)"
                 value={toAddress}
                 onChange={(e) => setToAddress(e.target.value)}
               />
             </div>
-            <div>
-              <label className="block text-sm mb-2">Amount (SOL)</label>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="0.0"
-                  inputMode="decimal"
-                  value={amountSol}
-                  onChange={(e) => setAmountSol(e.target.value)}
-                />
-                <Button type="button" variant="secondary" onClick={setUseMax} disabled={balanceSol === null}>
-                  Use Max
-                </Button>
-              </div>
-              {balanceSol !== null && (
-                <p className="mt-2 text-xs text-muted-foreground">Balance: {balanceSol.toFixed(6)} SOL</p>
-              )}
-            </div>
 
             <div className="pt-2">
-              <Button onClick={sendSol} disabled={!connected || isSending} className="w-full">
+              <Button onClick={sendSol} disabled={!connected || isSending} className="w-full h-12 text-base">
                 {connected ? (isSending ? 'Sending...' : 'Send SOL') : 'Connect Wallet'}
               </Button>
             </div>
