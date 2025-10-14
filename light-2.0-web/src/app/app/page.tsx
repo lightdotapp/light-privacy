@@ -43,6 +43,7 @@ function SendSolView() {
   const [status, setStatus] = useState<string>('');
   const ADDRESS_ERROR = 'Enter a valid Solana address.';
   const AMOUNT_ERROR = 'Enter a valid SOL amount.';
+  const [toast, setToast] = useState<{ message: string; href?: string } | null>(null);
 
   // Sanitize amount input to allow only digits and a single decimal point.
   const sanitizeAmount = useCallback((raw: string) => {
@@ -121,10 +122,17 @@ function SendSolView() {
     try {
       setIsSending(true);
       setStatus('Preparing transaction...');
-      const { blockhash } = await connection.getLatestBlockhash('confirmed');
+      const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
       transaction.recentBlockhash = blockhash;
       const signature = await sendTransaction(transaction, connection, { skipPreflight: false });
-      setStatus(`Sent. Signature: ${signature}`);
+      // Wait for confirmation
+      await connection.confirmTransaction({ signature, blockhash, lastValidBlockHeight }, 'confirmed');
+      setToast({
+        message: 'Transaction confirmed',
+        href: `https://solscan.io/tx/${signature}?cluster=devnet`,
+      });
+      // Auto-hide toast after a few seconds
+      setTimeout(() => setToast(null), 4500);
       setTimeout(async () => {
         try {
           const lamportsAfter = await connection.getBalance(publicKey);
@@ -261,6 +269,20 @@ function SendSolView() {
           </div>
         </Card>
       </main>
+      {/* Toast */}
+      {toast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+          <a
+            href={toast.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 rounded-lg bg-green-600 text-white px-4 py-3 shadow-lg hover:bg-green-500 transition-colors"
+          >
+            <span className="font-medium">{toast.message}</span>
+            {toast.href && <span className="text-white/80 underline">Explorer</span>}
+          </a>
+        </div>
+      )}
     </div>
   );
 }
