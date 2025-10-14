@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import '@solana/wallet-adapter-react-ui/styles.css';
 import { ConnectionProvider, WalletProvider, useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { WalletModalProvider, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { WalletModalProvider, WalletMultiButton, useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom';
 import { BackpackWalletAdapter } from '@solana/wallet-adapter-backpack';
 import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare';
@@ -34,12 +34,40 @@ export default function AppPage() {
 function SendSolView() {
   const { connection } = useConnection();
   const { publicKey, connected, sendTransaction } = useWallet();
+  const { setVisible: setWalletModalVisible } = useWalletModal();
 
   const [balanceLamports, setBalanceLamports] = useState<number | null>(null);
   const [toAddress, setToAddress] = useState<string>('');
   const [amountSol, setAmountSol] = useState<string>('');
   const [isSending, setIsSending] = useState(false);
   const [status, setStatus] = useState<string>('');
+  const ADDRESS_ERROR = 'Enter a valid Solana address.';
+  const AMOUNT_ERROR = 'Enter a valid SOL amount.';
+
+  // Sanitize amount input to allow only digits and a single decimal point.
+  const sanitizeAmount = useCallback((raw: string) => {
+    // Replace commas with dots and strip invalid chars
+    const replaced = raw.replace(/,/g, '.');
+    let result = '';
+    let dotSeen = false;
+    for (const ch of replaced) {
+      if (ch >= '0' && ch <= '9') {
+        result += ch;
+      } else if (ch === '.' && !dotSeen) {
+        dotSeen = true;
+        result += ch;
+      }
+    }
+    // Limit to max 9 digits after the decimal point
+    const dotIndex = result.indexOf('.');
+    if (dotIndex !== -1) {
+      const intPart = result.slice(0, dotIndex + 1);
+      const fracPart = result.slice(dotIndex + 1, dotIndex + 1 + 9);
+      result = intPart + fracPart;
+    }
+    if (result.startsWith('.')) result = '0' + result;
+    return result;
+  }, []);
 
   // Fetch balance when publicKey changes
   useEffect(() => {
@@ -77,12 +105,12 @@ function SendSolView() {
     try {
       recipient = new PublicKey(toAddress);
     } catch {
-      setStatus('Enter a valid Solana address.');
+      setStatus(ADDRESS_ERROR);
       return;
     }
-    const amount = Number(amountSol);
+    const amount = Number(sanitizeAmount(amountSol));
     if (!Number.isFinite(amount) || amount <= 0) {
-      setStatus('Enter a valid SOL amount.');
+      setStatus(AMOUNT_ERROR);
       return;
     }
     const lamports = Math.floor(amount * LAMPORTS_PER_SOL);
@@ -109,7 +137,7 @@ function SendSolView() {
     } finally {
       setIsSending(false);
     }
-  }, [connected, publicKey, toAddress, amountSol, connection, sendTransaction]);
+  }, [connected, publicKey, toAddress, amountSol, connection, sendTransaction, sanitizeAmount]);
 
   const shortKey = useMemo(() => {
     if (!publicKey) return '';
@@ -120,6 +148,16 @@ function SendSolView() {
   const balanceSol = useMemo(() => {
     return balanceLamports === null ? null : balanceLamports / LAMPORTS_PER_SOL;
   }, [balanceLamports]);
+  const isAddressError = status === ADDRESS_ERROR;
+  const isAmountError = status === AMOUNT_ERROR;
+
+  const onPrimaryButtonClick = useCallback(() => {
+    if (!connected) {
+      setWalletModalVisible(true);
+      return;
+    }
+    void sendSol();
+  }, [connected, setWalletModalVisible, sendSol]);
 
   return (
     <div className="min-h-screen bg-white">
@@ -149,7 +187,7 @@ function SendSolView() {
 
           <div className="space-y-6">
             {/* Token + amount panel */}
-            <div className="rounded-xl border border-border bg-card/50 p-4">
+            <div className={`rounded-xl border bg-card/50 p-4 ${isAmountError ? 'border-destructive ring-destructive/20 ring-2' : 'border-border'}`}>
               <div className="flex items-center justify-between mb-3">
                 <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#9945FF] via-[#14F195] to-[#00D18C] p-[1px]">
                   <div className="flex items-center gap-2 bg-background rounded-full px-3 py-1.5">
@@ -173,28 +211,53 @@ function SendSolView() {
                   placeholder="0"
                   inputMode="decimal"
                   value={amountSol}
-                  onChange={(e) => setAmountSol(e.target.value)}
+                  aria-invalid={isAmountError || undefined}
+                  onChange={(e) => {
+                    if (isAmountError) setStatus('');
+                    setAmountSol(sanitizeAmount(e.target.value));
+                  }}
+                  onBlur={() => {
+                    // Normalize trailing dot to a valid number
+                    if (amountSol === '.' || amountSol === '') {
+                      setAmountSol('0');
+                      return;
+                    }
+                    // Trim leading zeros (keep single zero if before dot)
+                    const [intPart, fracPart] = amountSol.split('.');
+                    const normalizedInt = String(Number(intPart || '0'));
+                    const normalized = fracPart !== undefined ? `${normalizedInt}.${fracPart}` : normalizedInt;
+                    setAmountSol(normalized);
+                  }}
                   className="w-full bg-transparent border-0 outline-none text-right text-6xl font-semibold tracking-tight placeholder:text-muted-foreground focus:ring-0"
                 />
               </div>
+              {isAmountError && (
+                <p className="mt-2 text-sm text-destructive/80">{AMOUNT_ERROR}</p>
+              )}
             </div>
 
             {/* Recipient row */}
             <div className="rounded-xl border border-border bg-card/50 p-4">
               <div className="text-sm text-muted-foreground mb-2">To</div>
               <Input
-                placeholder="Enter recipient address (e.g. heymike.sol or 111...111)"
+                placeholder="Enter recipient address (a valid Solana wallet address)"
                 value={toAddress}
-                onChange={(e) => setToAddress(e.target.value)}
+                aria-invalid={isAddressError || undefined}
+                onChange={(e) => {
+                  if (isAddressError) setStatus('');
+                  setToAddress(e.target.value);
+                }}
               />
+              {isAddressError && (
+                <p className="mt-1 text-sm text-destructive/80">{ADDRESS_ERROR}</p>
+              )}
             </div>
 
             <div className="pt-2">
-              <Button onClick={sendSol} disabled={!connected || isSending} className="w-full h-12 text-base">
-                {connected ? (isSending ? 'Sending...' : 'Send SOL') : 'Connect Wallet'}
+              <Button onClick={onPrimaryButtonClick} disabled={isSending} className="w-full h-12 text-base">
+                {connected ? (isSending ? 'Sending...' : 'Send') : 'Connect Wallet'}
               </Button>
             </div>
-            {status && <p className="text-sm text-muted-foreground">{status}</p>}
           </div>
         </Card>
       </main>
