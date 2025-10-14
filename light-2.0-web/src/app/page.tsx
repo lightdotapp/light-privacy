@@ -6,7 +6,7 @@ import WaitlistForm from '@/components/WaitlistForm';
 
 export default function Home() {
   return (
-    <div className="min-h-screen relative overflow-hidden bg-white">
+    <div className="min-h-screen relative overflow-hidden" style={{ backgroundColor: '#ffffff' }}>
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div
@@ -47,7 +47,7 @@ export default function Home() {
         ))}
       </div>
 
-      <main className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-20 overflow-visible">
+      <main className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-20 overflow-visible" style={{ backgroundColor: '#ffffff' }}>
         <div className="w-full max-w-4xl mx-auto text-center space-y-8 min-h-0">
           {/* Logo */}
           <motion.div

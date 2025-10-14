@@ -117,7 +117,8 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
+    background-color: #ffffff !important;
   }
   
   /* Ensure proper text rendering for large headings */
