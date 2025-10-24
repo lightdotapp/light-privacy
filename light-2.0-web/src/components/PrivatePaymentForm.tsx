@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { RealSolanaPaymentClient } from "@/lib/real-solana-payment";
+import { ArciumRealPaymentClient } from "@/lib/arcium-real-payment";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { Wallet } from "@coral-xyz/anchor";
 
@@ -53,29 +53,32 @@ export default function PrivatePaymentForm() {
         signAllTransactions,
       } as Wallet;
 
-      // Initialize real Solana payment client
-      const solanaClient = new RealSolanaPaymentClient(wallet);
-      await solanaClient.initialize();
+      // Initialize Arcium private payment client
+      const arciumClient = new ArciumRealPaymentClient(wallet);
+      await arciumClient.initialize();
       
-      setPaymentStatus("Creating Solana transaction...");
+      setPaymentStatus("Encrypting payment data with Arcium...");
 
-      // Create real Solana transaction
+      // Create Arcium private payment transaction
       const amount = parseFloat(paymentData.amount);
-      const transaction = await solanaClient.createPaymentTransaction(
+      const { transaction, computationOffset } = await arciumClient.createPrivatePaymentTransaction(
         amount,
         paymentData.recipient,
         publicKey
       );
 
-      setPaymentStatus("Signing transaction with your wallet...");
+      setPaymentStatus("Signing private payment transaction...");
 
-      // Sign and send the transaction
-      const result = await solanaClient.signAndSendTransaction(transaction);
+      // Sign and send the Arcium private payment
+      const result = await arciumClient.signAndSendPrivatePayment(transaction);
       setTransactionSignature(result.signature);
       
-      setPaymentStatus("Transaction confirmed on Solana network!");
+      setPaymentStatus("Waiting for Arcium computation to complete...");
 
-      setPaymentStatus(`✅ Payment completed! Transaction: ${result.signature}`);
+      // Wait for Arcium computation to complete
+      await arciumClient.awaitPrivatePaymentCompletion(computationOffset);
+      
+      setPaymentStatus(`✅ Private payment completed! Transaction: ${result.signature}`);
       
     } catch (error) {
       console.error("Payment failed:", error);
@@ -83,17 +86,19 @@ export default function PrivatePaymentForm() {
       
       // Provide more helpful error messages
       if (errorMessage.includes('User rejected')) {
-        setPaymentStatus('❌ Transaction cancelled: You rejected the transaction in your wallet.');
+        setPaymentStatus('❌ Private payment cancelled: You rejected the transaction in your wallet.');
       } else if (errorMessage.includes('Insufficient funds')) {
-        setPaymentStatus('❌ Insufficient funds: Not enough SOL in your wallet.');
+        setPaymentStatus('❌ Insufficient funds: Not enough SOL in your wallet for private payment.');
       } else if (errorMessage.includes('Invalid recipient')) {
         setPaymentStatus('❌ Invalid recipient: Please check the recipient address.');
-      } else if (errorMessage.includes('Transaction failed')) {
-        setPaymentStatus('❌ Transaction failed: The transaction was rejected by the network.');
+      } else if (errorMessage.includes('Arcium private payment failed')) {
+        setPaymentStatus('❌ Arcium computation failed: The private payment was rejected by the network.');
       } else if (errorMessage.includes('not initialized')) {
-        setPaymentStatus('❌ Client error: Solana client not properly initialized.');
+        setPaymentStatus('❌ Arcium client error: Private payment client not properly initialized.');
+      } else if (errorMessage.includes('Encryption failed')) {
+        setPaymentStatus('❌ Encryption failed: Unable to encrypt payment data with Arcium.');
       } else {
-        setPaymentStatus(`❌ Payment failed: ${errorMessage}`);
+        setPaymentStatus(`❌ Private payment failed: ${errorMessage}`);
       }
     } finally {
       setIsProcessing(false);
