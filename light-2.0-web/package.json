@@ -9,6 +9,8 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@arcium-hq/client": "^0.3.0",
+    "@arcium-hq/reader": "^0.3.0",
     "@radix-ui/react-slot": "^1.2.3",
     "@solana/wallet-adapter-backpack": "^0.1.14",
     "@solana/wallet-adapter-base": "^0.9.27",
