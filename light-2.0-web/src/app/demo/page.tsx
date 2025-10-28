@@ -11,6 +11,9 @@ import { WalletModalProvider, WalletMultiButton } from '@solana/wallet-adapter-r
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom';
 import { BackpackWalletAdapter } from '@solana/wallet-adapter-backpack';
 import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare';
+import { ProfilePopup } from '@/components/ProfilePopup';
+import { DepositModal } from '@/components/DepositModal';
+import { WithdrawModal } from '@/components/WithdrawModal';
 import '@solana/wallet-adapter-react-ui/styles.css';
 
 export default function AppPage() {
@@ -43,6 +46,8 @@ function SendSolView() {
   const ADDRESS_ERROR = 'Enter a valid Solana address.';
   const AMOUNT_ERROR = 'Enter a valid SOL amount.';
   const [toast, setToast] = useState<{ message: string; href?: string } | null>(null);
+  const [depositModalVisible, setDepositModalVisible] = useState(false);
+  const [withdrawModalVisible, setWithdrawModalVisible] = useState(false);
 
   // Sanitize amount input to allow only digits and a single decimal point.
   const sanitizeAmount = useCallback((raw: string) => {
@@ -165,6 +170,30 @@ function SendSolView() {
     void sendSol();
   }, [connected, sendSol]);
 
+  const handleDeposit = useCallback(() => {
+    setDepositModalVisible(true);
+  }, []);
+
+  const handleWithdraw = useCallback(() => {
+    setWithdrawModalVisible(true);
+  }, []);
+
+  const handleWithdrawSuccess = useCallback(() => {
+    setToast({
+      message: 'Withdrawal completed successfully',
+    });
+    setTimeout(() => setToast(null), 4500);
+    // Refresh balance
+    setTimeout(async () => {
+      if (publicKey) {
+        try {
+          const lamports = await connection.getBalance(publicKey);
+          setBalanceLamports(lamports);
+        } catch {}
+      }
+    }, 2000);
+  }, [publicKey, connection]);
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -174,12 +203,32 @@ function SendSolView() {
           <span className="font-semibold text-lg">Light</span>
         </div>
         <div className="flex items-center gap-3">
-          {publicKey && (
-            <div className="text-sm text-muted-foreground hidden sm:block">
-              {shortKey} {balanceSol !== null ? `• ${balanceSol.toFixed(4)} SOL` : ''}
-            </div>
+          {connected ? (
+            <ProfilePopup 
+              balance={balanceLamports}
+              onDeposit={handleDeposit}
+              onWithdraw={handleWithdraw}
+              depositModalVisible={depositModalVisible}
+              withdrawModalVisible={withdrawModalVisible}
+            >
+              {/* Deposit Modal */}
+              <DepositModal 
+                visible={depositModalVisible}
+                onClose={() => setDepositModalVisible(false)}
+                balance={balanceLamports}
+              />
+
+              {/* Withdraw Modal */}
+              <WithdrawModal 
+                visible={withdrawModalVisible}
+                onClose={() => setWithdrawModalVisible(false)}
+                balance={balanceLamports}
+                onSuccess={handleWithdrawSuccess}
+              />
+            </ProfilePopup>
+          ) : (
+            <WalletMultiButton />
           )}
-          <WalletMultiButton />
         </div>
       </header>
 
