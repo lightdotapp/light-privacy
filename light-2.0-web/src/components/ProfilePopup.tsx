@@ -63,9 +63,14 @@ export function ProfilePopup({ balance, onDeposit, onWithdraw, depositModalVisib
         <span className="hidden sm:inline">{shortKey}</span>
       </Button>
 
+      {/* Mobile Backdrop */}
+      {isOpen && !depositModalVisible && !withdrawModalVisible && (
+        <div className="fixed inset-0 bg-black/20 z-40 sm:hidden" onClick={() => setIsOpen(false)} />
+      )}
+
       {/* Popup Card */}
       {isOpen && !depositModalVisible && !withdrawModalVisible && (
-        <Card className="absolute right-0 top-full mt-2 w-80 sm:w-96 p-6 shadow-2xl z-50 bg-white">
+        <Card className="fixed sm:absolute left-0 right-0 sm:left-auto sm:right-0 top-auto bottom-0 sm:top-full sm:bottom-auto mt-0 sm:mt-2 w-full sm:w-96 p-6 shadow-2xl z-50 bg-white rounded-t-3xl sm:rounded-2xl">
           {/* Header with wallet address */}
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-2">

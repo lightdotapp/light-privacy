@@ -72,8 +72,12 @@ export function DepositModal({ visible, onClose, balance }: DepositModalProps) {
   if (!visible) return null;
 
   return (
-    <div ref={modalRef} className="absolute right-0 top-full mt-2 w-80 sm:w-96 z-50">
-      <Card className="bg-white shadow-2xl rounded-2xl overflow-hidden">
+    <>
+      {/* Mobile Backdrop */}
+      <div className="fixed inset-0 bg-black/20 z-40 sm:hidden" onClick={onClose} />
+      
+      <div ref={modalRef} className="fixed sm:absolute left-0 right-0 sm:left-auto sm:right-0 top-auto bottom-0 sm:top-full sm:bottom-auto mt-0 sm:mt-2 w-full sm:w-96 z-50">
+        <Card className="bg-white shadow-2xl rounded-t-3xl sm:rounded-2xl overflow-hidden max-h-[90vh] sm:max-h-none overflow-y-auto">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b">
             <button
@@ -168,8 +172,9 @@ export function DepositModal({ visible, onClose, balance }: DepositModalProps) {
               Done
             </Button>
           </div>
-      </Card>
-    </div>
+        </Card>
+      </div>
+    </>
   );
 }
 
