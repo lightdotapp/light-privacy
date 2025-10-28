@@ -6,12 +6,12 @@ import { clusterApiUrl, LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import '@solana/wallet-adapter-react-ui/styles.css';
 import { ConnectionProvider, WalletProvider, useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { WalletModalProvider, WalletMultiButton, useWalletModal } from '@solana/wallet-adapter-react-ui';
+import { WalletModalProvider, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom';
 import { BackpackWalletAdapter } from '@solana/wallet-adapter-backpack';
 import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare';
+import '@solana/wallet-adapter-react-ui/styles.css';
 
 export default function AppPage() {
   const endpoint = useMemo(() => clusterApiUrl('devnet'), []);
@@ -22,7 +22,7 @@ export default function AppPage() {
 
   return (
     <ConnectionProvider endpoint={endpoint} config={{ commitment: 'confirmed' }}>
-      <WalletProvider wallets={wallets} autoConnect>
+      <WalletProvider wallets={wallets} autoConnect={true}>
         <WalletModalProvider>
           <SendSolView />
         </WalletModalProvider>
@@ -34,7 +34,6 @@ export default function AppPage() {
 function SendSolView() {
   const { connection } = useConnection();
   const { publicKey, connected, sendTransaction } = useWallet();
-  const { setVisible: setWalletModalVisible } = useWalletModal();
 
   const [balanceLamports, setBalanceLamports] = useState<number | null>(null);
   const [toAddress, setToAddress] = useState<string>('');
@@ -161,11 +160,10 @@ function SendSolView() {
 
   const onPrimaryButtonClick = useCallback(() => {
     if (!connected) {
-      setWalletModalVisible(true);
       return;
     }
     void sendSol();
-  }, [connected, setWalletModalVisible, sendSol]);
+  }, [connected, sendSol]);
 
   return (
     <div className="min-h-screen bg-white">
@@ -181,7 +179,7 @@ function SendSolView() {
               {shortKey} {balanceSol !== null ? `• ${balanceSol.toFixed(4)} SOL` : ''}
             </div>
           )}
-          <WalletMultiButton className="!bg-black !text-white" />
+          <WalletMultiButton />
         </div>
       </header>
 
