@@ -114,6 +114,23 @@ export default function Home() {
             <WaitlistForm />
           </div>
 
+          {/* Private Payments Demo Link */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="pt-6"
+          >
+            <motion.a
+              href="/private-payments"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
+            >
+              🔒 Try Private Payments Demo
+            </motion.a>
+          </motion.div>
+
           {/* Social Links */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
