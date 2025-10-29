@@ -1,4 +1,4 @@
-import { Connection, PublicKey } from "@solana/web3.js";
+import { Connection, PublicKey, Keypair, Transaction, VersionedTransaction } from "@solana/web3.js";
 import { AnchorProvider, Wallet } from "@coral-xyz/anchor";
 
 // Browser-compatible random bytes function
@@ -7,6 +7,7 @@ function randomBytes(length: number): Uint8Array {
     return window.crypto.getRandomValues(new Uint8Array(length));
   }
   // Fallback for Node.js environments
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const crypto = require('crypto');
   return new Uint8Array(crypto.randomBytes(length));
 }
@@ -48,7 +49,7 @@ export class ArciumPaymentClient {
       console.log("Encrypting payment data (simulated)...");
       
       // Generate mock encryption data
-      const mockPrivateKey = randomBytes(32);
+      const _mockPrivateKey = randomBytes(32);
       const mockPublicKey = randomBytes(32);
       const mockNonce = randomBytes(16);
       
@@ -80,7 +81,7 @@ export class ArciumPaymentClient {
     }
   }
 
-  async submitPrivatePayment(encryptedData: any) {
+  async submitPrivatePayment(_encryptedData: unknown) {
     if (!this.mxePublicKey) {
       throw new Error("Arcium client not initialized");
     }
@@ -109,7 +110,7 @@ export class ArciumPaymentClient {
     }
   }
 
-  async awaitPaymentCompletion(computationOffset: any) {
+  async awaitPaymentCompletion(_computationOffset: unknown) {
     try {
       // Simulate waiting for computation completion
       console.log("Waiting for computation to complete...");
@@ -130,16 +131,26 @@ export class ArciumPaymentClient {
 }
 
 // Utility function to create a wallet from keypair
-export function createWalletFromKeypair(keypair: any): Wallet {
+export function createWalletFromKeypair(keypair: Keypair): Wallet {
   return {
     publicKey: keypair.publicKey,
     signTransaction: async (tx) => {
-      tx.sign(keypair);
+      if (tx instanceof Transaction) {
+        tx.sign(keypair);
+      } else if (tx instanceof VersionedTransaction) {
+        tx.sign([keypair]);
+      }
       return tx;
     },
     signAllTransactions: async (txs) => {
-      txs.forEach((tx) => tx.sign(keypair));
+      txs.forEach((tx) => {
+        if (tx instanceof Transaction) {
+          tx.sign(keypair);
+        } else if (tx instanceof VersionedTransaction) {
+          tx.sign([keypair]);
+        }
+      });
       return txs;
     },
-  };
+  } as Wallet;
 }
