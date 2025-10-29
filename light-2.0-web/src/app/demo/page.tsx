@@ -151,12 +151,6 @@ function SendSolView() {
     }
   }, [connected, publicKey, toAddress, amountSol, connection, sendTransaction, sanitizeAmount]);
 
-  const shortKey = useMemo(() => {
-    if (!publicKey) return '';
-    const s = publicKey.toBase58();
-    return `${s.slice(0, 4)}...${s.slice(-4)}`;
-  }, [publicKey]);
-
   const balanceSol = useMemo(() => {
     return balanceLamports === null ? null : balanceLamports / LAMPORTS_PER_SOL;
   }, [balanceLamports]);
