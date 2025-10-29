@@ -1,12 +1,10 @@
 "use client";
 
-import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { useEffect, useState } from "react";
 import WalletStatus from "./WalletStatus";
 
 export default function WalletConnection() {
-  const { publicKey, connected } = useWallet();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {

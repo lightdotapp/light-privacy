@@ -1,5 +1,5 @@
 import { x25519, RescueCipher } from "@arcium-hq/client";
-import { Connection, PublicKey } from "@solana/web3.js";
+import { Connection, PublicKey, Keypair, Transaction, VersionedTransaction } from "@solana/web3.js";
 import { AnchorProvider, Wallet } from "@coral-xyz/anchor";
 
 // Browser-compatible random bytes function
@@ -8,6 +8,7 @@ function randomBytes(length: number): Uint8Array {
     return window.crypto.getRandomValues(new Uint8Array(length));
   }
   // Fallback for Node.js environments
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const crypto = require('crypto');
   return new Uint8Array(crypto.randomBytes(length));
 }
@@ -50,7 +51,9 @@ export class ArciumPaymentClient {
       const publicKey = x25519.getPublicKey(privateKey);
 
       // Derive shared secret with MXE
-      const sharedSecret = x25519.getSharedSecret(privateKey, this.mxePublicKey);
+      // Convert PublicKey to Uint8Array for x25519
+      const mxePublicKeyBytes = this.mxePublicKey.toBytes();
+      const sharedSecret = x25519.getSharedSecret(privateKey, mxePublicKeyBytes);
       const cipher = new RescueCipher(sharedSecret);
 
       // Prepare payment data
@@ -61,21 +64,10 @@ export class ArciumPaymentClient {
         timestamp: Date.now(),
       };
 
-      // Encrypt the payment data with proper formatting
+      // Encrypt the payment data
       const nonce = randomBytes(16);
-      
-      // Convert amount to proper format for encryption
-      const amountBytes = new Uint8Array(8);
-      const amountView = new DataView(amountBytes.buffer);
-      amountView.setBigUint64(0, amount, false); // little-endian
-      
-      // Convert recipient length to bytes
-      const recipientLengthBytes = new Uint8Array(4);
-      const recipientLengthView = new DataView(recipientLengthBytes.buffer);
-      recipientLengthView.setUint32(0, recipient.length, false); // little-endian
-      
-      // Create plaintext array with proper byte arrays
-      const plaintext = [Array.from(amountBytes), Array.from(recipientLengthBytes)];
+      // Use bigint array for encryption (simplified format)
+      const plaintext = [amount, BigInt(recipient.length)];
       const ciphertext = cipher.encrypt(plaintext, nonce);
 
       return {
@@ -90,7 +82,7 @@ export class ArciumPaymentClient {
     }
   }
 
-  async submitPrivatePayment(encryptedData: any) {
+  async submitPrivatePayment(_encryptedData: unknown) {
     if (!this.mxePublicKey) {
       throw new Error("Arcium client not initialized");
     }
@@ -120,7 +112,7 @@ export class ArciumPaymentClient {
     }
   }
 
-  async awaitPaymentCompletion(computationOffset: any) {
+  async awaitPaymentCompletion(_computationOffset: unknown) {
     try {
       // Simulate waiting for computation completion
       console.log("Waiting for computation to complete...");
@@ -141,16 +133,26 @@ export class ArciumPaymentClient {
 }
 
 // Utility function to create a wallet from keypair
-export function createWalletFromKeypair(keypair: any): Wallet {
+export function createWalletFromKeypair(keypair: Keypair): Wallet {
   return {
     publicKey: keypair.publicKey,
     signTransaction: async (tx) => {
-      tx.sign(keypair);
+      if (tx instanceof Transaction) {
+        tx.sign(keypair);
+      } else if (tx instanceof VersionedTransaction) {
+        tx.sign([keypair]);
+      }
       return tx;
     },
     signAllTransactions: async (txs) => {
-      txs.forEach((tx) => tx.sign(keypair));
+      txs.forEach((tx) => {
+        if (tx instanceof Transaction) {
+          tx.sign(keypair);
+        } else if (tx instanceof VersionedTransaction) {
+          tx.sign([keypair]);
+        }
+      });
       return txs;
     },
-  };
+  } as Wallet;
 }
